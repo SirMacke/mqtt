@@ -16,7 +16,7 @@
       </form>
     </div>
     <div id="right-container">
-      <p v-for="(message, index) in state.messages" :key="index">{{message}}</p>
+      <p v-for="(message, index) in state.messages" :key="index">> {{message[1]}}</p>
     </div>
   </main>
 </template>
@@ -38,13 +38,16 @@ export default {
     });
 
     const mqttConnect = () => {
-      mqtt.launch(state.user.id, (state.topic, source) => {
-        console.log('message: ', JSON.parse(source.toString()))
-      })
+      mqtt.launch(state.user.id, (topic, source) => {
+        state.messages.unshift([topic.toString(), source.toString()]);
+        //console.log("message:", source.toString(), 'on topic:', topic);
+      });
+      //mqtt.publish("json", { name: "WallE", direction: "left" });
+      mqtt.subscribe({ 'ping': 0 });
     }
 
     const mqttDisconnect = () => {
-
+      mqtt.end()
     }
 
     return {
@@ -61,6 +64,7 @@ main
   display: grid
   grid-template-columns: 1fr 1fr
   grid-column-gap: 25px
+  position: relative
 
   #left-container
     height: 100vh
@@ -112,15 +116,20 @@ main
           cursor: pointer
 
   #right-container
-    width: 50%
+    width: 25%
     height: 60%
     background: #fcfcfc
-    position: relative
-    left: 35%
+    position: absolute
+    right: 15%
     top: 50%
-    transform: translate(-50%, -50%)
+    transform: translateY(-50%)
     border: 1px solid #ededed
     border-radius: 5px
+    overflow-y: scroll
+
+    p
+      color: black
+      margin: 5px 10px
 
 
 </style>

@@ -1,25 +1,30 @@
 let http = require('http');
 httpServer = http.createServer();
 mosca = require('mosca');
+require('./pub2');
 
 let settings = {
-  port: 3003,
-  persistence:{
-    factory: mosca.persistence.Mongo,
-    url: "mongodb://localhost:27017/mosca"
+  http: {
+    port: 1884,
+    bundle: true,
+    static: './'
   }
 };
 
 let server = new mosca.Server(settings);
 server.attachHttpServer(httpServer);
 
-server.on('published', function(packet, client) {
-  console.log('Published', packet.payload.toString());
-});
-
-let port = 3003
+let port = 3005;
 httpServer.listen(port);
 
-server.on('ready', function(){
-  console.log('Server is running at port' + port);  
+server.on('ready', () => {
+  console.log('Server is running on port: ' + port);
 });
+
+server.on('clientConnected', (client) => {
+  console.log("Client connected", client.id);
+});
+
+/*server.on('published', (packet, client) => {
+  console.log('Published', packet.payload.toString());
+});*/
